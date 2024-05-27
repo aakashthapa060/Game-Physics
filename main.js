@@ -134,8 +134,8 @@ window.addEventListener("click", (e) => {
     const angle = Math.atan2(e.clientY - playerCoordinate.y, e.clientX - playerCoordinate.x);
     console.log(angle)
     let velocity = {
-        x: Math.cos(angle) * 50,
-        y: Math.sin(angle) * 50
+        x: Math.cos(angle) * 20,
+        y: Math.sin(angle) * 20
     }
 
     let force = {
