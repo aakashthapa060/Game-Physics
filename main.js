@@ -23,7 +23,12 @@ function randomColor(colors){
     let randomNum = Math.floor(Math.random() * colors.length);
     return colors[randomNum];
 }
-
+function getDistance(x1,y1,x2,y2){
+    let xDistance = x2 - x1;
+    let yDistance = y2 - y1;
+    let distance = Math.sqrt(Math.pow(xDistance,2) + Math.pow(yDistance,2)) 
+    return distance;
+}
 // Canvas
 let canvas = document.querySelector("#canvas");
 
@@ -84,7 +89,7 @@ class Projectile{
         ctx.fill();
     }
 
-    update(){
+    update(particles){
         this.velocity.y += this.force.gravity;
 
         // Apply friction to both x and y velocities
@@ -92,11 +97,11 @@ class Projectile{
         this.velocity.y *= this.force.friction;
 
 
-        if(this.y + this.velocity.y > (canvas.height - this.radius) || this.y < this.radius){
+        if(this.y + this.velocity.y > (canvas.height - this.radius)){
             this.velocity.y = -this.velocity.y;
             this.velocity.y = 0;
 
-        } 
+        }  
         if(this.x > (canvas.width - this.radius) || this.x < this.radius){
             this.velocity.x = -this.velocity.x ;
 
@@ -105,6 +110,16 @@ class Projectile{
         this.x += this.velocity.x ;
         this.y += this.velocity.y;
 
+        for(let i = 0; i < particles.length; i++){
+            if(this === particles[i]) continue;
+            if(getDistance(this.x,this.y,particles[i].x,particles[i].y)- this.radius *2 < 0){
+                this.velocity.x -= this.velocity.x
+                this.velocity.y -= this.velocity.y
+                particles[i].velocity.x -= particles[i].velocity.x
+                particles[i].velocity.y -= particles[i].velocity.y
+
+            }
+        }
 
         this.draw()
 
@@ -126,6 +141,11 @@ let player = new Player(playerCoordinate.x,playerCoordinate.y, radius,"red", {x:
 // Projectiles
 let projectiles = [];
 // let projectile = new Projectile(playerCoordinate.x,playerCoordinate.y,10,"blue", {x:0,y:0});
+let power = 20;
+document.querySelector("#btnPower").addEventListener("click", () => {
+    power = document.querySelector("#power").value
+
+})
 window.addEventListener("click", (e) => {
     let projectileCoordinate = {
         x: playerCoordinate.x,
@@ -134,8 +154,8 @@ window.addEventListener("click", (e) => {
     const angle = Math.atan2(e.clientY - playerCoordinate.y, e.clientX - playerCoordinate.x);
     console.log(angle)
     let velocity = {
-        x: Math.cos(angle) * 20,
-        y: Math.sin(angle) * 20
+        x: Math.cos(angle) * power,
+        y: Math.sin(angle) * power
     }
 
     let force = {
@@ -152,7 +172,8 @@ function animate(){
     player.update()
 
     projectiles.forEach((projectile,index) => {
-        projectile.update();
+        projectile.update(projectiles);
+
     })
 }
 
